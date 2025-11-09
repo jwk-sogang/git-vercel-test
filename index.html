@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Mini YouTube Recommender</title>
+  <style>
+    body { font-family: sans-serif; margin: 20px; }
+    .video { border: 1px solid #ccc; padding: 10px; margin: 8px 0; }
+    .tags { font-size: 12px; color: gray; }
+    button { margin-top: 4px; }
+  </style>
+</head>
+<body>
+  <h1>🎥 추천 영상 데모</h1>
+  <p>아래 영상을 '좋아요' 하면, 비슷한 태그의 영상이 추천됩니다.</p>
+
+  <h3>전체 영상</h3>
+  <div id="allVideos"></div>
+
+  <h3>추천 영상</h3>
+  <div id="recommendations"></div>
+
+  <script>
+    // 1️⃣ 미리 준비된 "영상 데이터"
+    const videos = [
+      { id: 1, title: "로파이 음악 공부용 🎧", tags: ["music", "study", "relax"] },
+      { id: 2, title: "p5.js로 코딩 아트 만들기", tags: ["coding", "art", "javascript"] },
+      { id: 3, title: "리액트 입문", tags: ["coding", "frontend", "react"] },
+      { id: 4, title: "그림 그리는 브이로그", tags: ["art", "vlog"] },
+      { id: 5, title: "ASMR 타자 소리", tags: ["sound", "relax"] },
+      { id: 6, title: "HTML 기초 10분 완성", tags: ["coding", "frontend"] },
+      { id: 7, title: "음악 추천: 감성 플레이리스트", tags: ["music", "playlist"] },
+      { id: 8, title: "디자인 시스템 소개", tags: ["design", "frontend"] },
+      { id: 9, title: "요가로 스트레스 해소", tags: ["health", "relax"] },
+      { id: 10, title: "AI 그림 그리기", tags: ["ai", "art"] },
+    ];
+
+    // 2️⃣ 사용자 취향 로드/저장
+    const prefsKey = "userTags";
+    let userTags = JSON.parse(localStorage.getItem(prefsKey) || "[]");
+
+    function saveTags() {
+      localStorage.setItem(prefsKey, JSON.stringify(userTags));
+    }
+
+    // 3️⃣ 영상 리스트 표시
+    const allVideosDiv = document.getElementById("allVideos");
+    videos.forEach(v => {
+      const div = document.createElement("div");
+      div.className = "video";
+      div.innerHTML = `
+        <b>${v.title}</b><br>
+        <span class="tags">#${v.tags.join(" #")}</span><br>
+        <button>좋아요 ❤️</button>
+      `;
+      div.querySelector("button").onclick = () => {
+        userTags.push(...v.tags);
+        saveTags();
+        alert("좋아요 저장됨! 추천목록이 갱신됩니다.");
+        showRecommendations();
+      };
+      allVideosDiv.appendChild(div);
+    });
+
+    // 4️⃣ 추천 목록 계산
+    function showRecommendations() {
+      const recDiv = document.getElementById("recommendations");
+      recDiv.innerHTML = "";
+      if (userTags.length === 0) {
+        recDiv.innerHTML = "<i>좋아요한 영상이 없습니다.</i>";
+        return;
+      }
+
+      // 각 영상별 태그 일치 점수 계산
+      const scores = videos.map(v => {
+        const overlap = v.tags.filter(t => userTags.includes(t)).length;
+        return { ...v, score: overlap };
+      });
+
+      // 점수순 정렬 후 상위 3개 추천
+      const top = scores.sort((a,b) => b.score - a.score).slice(0,3);
+
+      top.forEach(v => {
+        const div = document.createElement("div");
+        div.className = "video";
+        div.innerHTML = `<b>${v.title}</b><br>
+                         <span class="tags">#${v.tags.join(" #")}</span>`;
+        recDiv.appendChild(div);
+      });
+    }
+
+    showRecommendations();
+  </script>
+</body>
+</html>

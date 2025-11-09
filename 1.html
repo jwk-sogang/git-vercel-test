@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>Click Counter (localStorage)</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; margin-top: 100px; }
+    button { font-size: 20px; padding: 10px 20px; }
+    #count { font-size: 40px; margin-top: 20px; display: block; }
+  </style>
+</head>
+<body>
+
+  <h1>🖱️ 클릭 카운터</h1>
+  <button id="btn">Click me!</button>
+  <span id="count"></span>
+
+  <script>
+    // 1️⃣ localStorage에서 기존 카운트 불러오기 (없으면 0)
+    let count = Number(localStorage.getItem('clickCount')) || 0;
+
+    // 2️⃣ DOM에 표시
+    const countDisplay = document.getElementById('count');
+    countDisplay.textContent = count;
+
+    // 3️⃣ 버튼 클릭 시 카운트 증가 및 저장
+    document.getElementById('btn').addEventListener('click', () => {
+      count++;
+      countDisplay.textContent = count;
+      localStorage.setItem('clickCount', count);
+    });
+  </script>
+
+</body>
+</html>
